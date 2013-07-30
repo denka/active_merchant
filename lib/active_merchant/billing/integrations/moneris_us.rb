@@ -7,8 +7,8 @@ module ActiveMerchant #:nodoc:
       module MonerisUs
 
         mattr_accessor :production_url, :test_url
-        self.test_url = 'https://esplusqa.moneris.com/usmpg/index.php'
-        self.production_url = 'https://esplus.moneris.com/usmpg/index.php'
+        self.test_url = 'https://esplusqa.moneris.com/DPHPP/index.php'
+        self.production_url = 'https://esplus.moneris.com/DPHPP/index.php'
 
         def self.service_url
           case ActiveMerchant::Billing::Base.integration_mode
