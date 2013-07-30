@@ -6,8 +6,20 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module MonerisUs
 
-        mattr_accessor :service_url
-        self.service_url = 'https://www.example.com'
+        mattr_accessor :production_url, :test_url
+        self.test_url = 'https://esplusqa.moneris.com/usmpg/index.php'
+        self.production_url = 'https://esplus.moneris.com/usmpg/index.php'
+
+        def self.service_url
+          case ActiveMerchant::Billing::Base.integration_mode
+          when :production
+            self.production_url
+          when :test
+            self.test_url
+          else
+            raise StandardError, "Integration mode set to an invalid value: #{mode}"
+          end
+        end
 
         def self.notification(post)
           Notification.new(post)
