@@ -4,29 +4,29 @@ module ActiveMerchant #:nodoc:
       module MonerisUs
         class Helper < ActiveMerchant::Billing::Integrations::Helper
           # Replace with the real mapping
-          mapping :account, ''
-          mapping :amount, ''
-        
-          mapping :order, ''
+          mapping :account, 'hpp_id'
+          mapping :credential2, 'hpp_key'
+          mapping :amount, 'amount'
 
-          mapping :customer, :first_name => '',
-                             :last_name  => '',
-                             :email      => '',
-                             :phone      => ''
+          mapping :order, 'order_no'
 
-          mapping :billing_address, :city     => '',
-                                    :address1 => '',
-                                    :address2 => '',
-                                    :state    => '',
-                                    :zip      => '',
-                                    :country  => ''
+          mapping :customer, :first_name => 'od_bill_firstname',
+                             :last_name  => 'od_bill_lastname',
+                             :email      => 'client_email',
+                             :phone      => 'od_bill_phone'
 
-          mapping :notify_url, ''
-          mapping :return_url, ''
+          mapping :billing_address, :city     => 'od_bill_city',
+                                    :address1 => 'od_bill_address',
+                                    :state    => 'od_bill_state',
+                                    :zip      => 'od_bill_zipcode',
+                                    :country  => 'od_bill_country',
+                                    :company  => 'od_bill_company'
+
+          mapping :notify_url, 'notify_url'
           mapping :cancel_return_url, ''
-          mapping :description, ''
-          mapping :tax, ''
-          mapping :shipping, ''
+          mapping :description, 'note'
+          mapping :tax, 'li_taxes'
+          mapping :shipping, 'li_shipping'
         end
       end
     end
