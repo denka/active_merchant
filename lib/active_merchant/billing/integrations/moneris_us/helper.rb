@@ -11,19 +11,19 @@ module ActiveMerchant #:nodoc:
           mapping :order, 'order_no'
 
           mapping :customer,
-            first_name: 'od_bill_firstname',
-            last_name: 'od_bill_lastname',
             email: 'client_email',
-            phone: 'od_bill_phone',
             id: 'cust_id'
 
           mapping :billing_address,
+            first_name: 'od_bill_firstname',
+            last_name: 'od_bill_lastname',
+            company: 'od_bill_company',
             city: 'od_bill_city',
             address1: 'od_bill_address',
             state: 'od_bill_state',
             zip: 'od_bill_zipcode',
             country: 'od_bill_country',
-            company: 'od_bill_company'
+            phone: 'od_bill_phone'
 
           mapping :ship_to_address,
             first_name: 'od_ship_firstname',
