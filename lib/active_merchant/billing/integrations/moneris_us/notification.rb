@@ -1,91 +1,93 @@
-require 'net/http'
-
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     module Integrations #:nodoc:
       module MonerisUs
         class Notification < ActiveMerchant::Billing::Integrations::Notification
+
+          def initialize(post, options = {})
+            super
+            @options[:time_zone] ||= "-05:00"
+          end
+
           def complete?
-            params['']
+            status == 'Completed'
           end
 
-          def item_id
-            params['']
+          def order_id
+            params["order_id"]
           end
 
+          # gateway transaction identifier
           def transaction_id
-            params['']
+            params['txn_num']
+          end
+
+          # cardholder name
+          def cardholder
+            params['cardholder']
+          end
+
+          def card_type
+            params['card_type']
+          end
+
+          # obfuscated card number
+          def card_num
+            params['card_num']
+          end
+
+          # tries to make 2 digit year into a full year
+          def card_expiration_date
+            Date.parse([params["exp_year"],params["exp_month"]].join("-"),comp=true)
+          end
+
+          def eci
+            params["crypt_type"]
+          end
+
+          # 18 character string
+          # should be stored by merchant
+          # must displayed on receipts
+          # breakdown:
+          # 640123450010690030
+          # aaaaaaaabbbcccddd
+          # a - terminal id
+          # b - shift number
+          # c - batch number
+          # d - transaction number within batch
+          def reference_number
+            params['ref_num']
+          end
+
+          # used in transaction verification feature
+          def verify_key
+            params['verify_key']
+          end
+
+          def auth_code
+            params['auth_code']
           end
 
           # When was this payment received by the client.
           def received_at
-            params['']
+            # @TODO mangle this to return a DateTime
+            Time.parse("%sT%s%s" % [params['txn_date'],params['txn_time'],@options[:time_zone]])
           end
 
           def payer_email
-            params['']
-          end
-
-          def receiver_email
-            params['']
-          end
-
-          def security_key
-            params['']
+            params['client_email']
           end
 
           # the money amount we received in X.2 decimal.
           def gross
-            params['']
-          end
-
-          # Was this a test transaction?
-          def test?
-            params[''] == 'test'
+            params['amount']
           end
 
           def status
-            params['']
-          end
-
-          # Acknowledge the transaction to MonerisUs. This method has to be called after a new
-          # apc arrives. MonerisUs will verify that all the information we received are correct and will return a
-          # ok or a fail.
-          #
-          # Example:
-          #
-          #   def ipn
-          #     notify = MonerisUsNotification.new(request.raw_post)
-          #
-          #     if notify.acknowledge
-          #       ... process order ... if notify.complete?
-          #     else
-          #       ... log possible hacking attempt ...
-          #     end
-          def acknowledge
-            payload = raw
-
-            uri = URI.parse(MonerisUs.notification_confirmation_url)
-
-            request = Net::HTTP::Post.new(uri.path)
-
-            request['Content-Length'] = "#{payload.size}"
-            request['User-Agent'] = "Active Merchant -- http://home.leetsoft.com/am"
-            request['Content-Type'] = "application/x-www-form-urlencoded"
-
-            http = Net::HTTP.new(uri.host, uri.port)
-            http.verify_mode    = OpenSSL::SSL::VERIFY_NONE unless @ssl_strict
-            http.use_ssl        = true
-
-            response = http.request(request, payload)
-
-            # Replace with the appropriate codes
-            raise StandardError.new("Faulty MonerisUs result: #{response.body}") unless ["AUTHORISED", "DECLINED"].include?(response.body)
-            response.body == "AUTHORISED"
+            params['result'] == '1' ? 'Completed' : 'Failed'
           end
 
           private
-
           # Take the posted data and move the relevant data into a hash
           def parse(post)
             @raw = post.to_s
