@@ -84,7 +84,18 @@ module ActiveMerchant #:nodoc:
           end
 
           def status
-            params['result'] == '1' ? 'Completed' : 'Failed'
+            case params['response_code'].to_i
+            when 0...49
+              'Approved'
+            when 54
+              'Expired Card'
+            when 55...56
+              'Card not Supported'
+            when 70...75
+              'Invalid Card'
+            else
+              'Credit Card Declined'
+            end
           end
 
           private
