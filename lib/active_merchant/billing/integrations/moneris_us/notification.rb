@@ -9,8 +9,20 @@ module ActiveMerchant #:nodoc:
             @options[:time_zone] ||= "-05:00"
           end
 
-          def complete?
-            status == 'Completed'
+          def canceled?
+            params['cancel'].present?
+          end
+
+          def approved?
+            params['response_code'].to_i < 50
+          end
+
+          def failed?
+            params['response_code'] == 'null'
+          end
+
+          def declined?
+            params['response_code'].to_i >= 50
           end
 
           def order_id
@@ -81,6 +93,22 @@ module ActiveMerchant #:nodoc:
           # the money amount we received in X.2 decimal.
           def gross
             params['amount']
+          end
+
+          def result
+            params['result']
+          end
+
+          def message
+            params['message']
+          end
+
+          def transaction_date
+            received_at
+          end
+
+          def response_code
+            params['response_code']
           end
 
           def status
