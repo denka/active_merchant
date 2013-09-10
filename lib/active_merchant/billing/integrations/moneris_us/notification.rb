@@ -14,15 +14,15 @@ module ActiveMerchant #:nodoc:
           end
 
           def approved?
-            params['response_code'].to_i < 50
+            params['response_code'].try(:<, 50)
           end
 
           def failed?
-            params['response_code'] == 'null'
+            params['response_code'].nil?
           end
 
           def declined?
-            params['response_code'].to_i >= 50
+            params['response_code'].try(:>=, 50)
           end
 
           def order_id
@@ -50,7 +50,7 @@ module ActiveMerchant #:nodoc:
 
           # tries to make 2 digit year into a full year
           def card_expiration_date
-            Date.parse([params["exp_year"],params["exp_month"]].join("-"),comp=true)
+            Date.parse([params["exp_year"],params["exp_month"]].join("-"),comp=true) if params['exp_year'].present? and params['exp_month'].present?
           end
 
           def eci
@@ -83,7 +83,7 @@ module ActiveMerchant #:nodoc:
           # When was this payment received by the client.
           def received_at
             # @TODO mangle this to return a DateTime
-            Time.parse("%sT%s%s" % [params['txn_date'],params['txn_time'],@options[:time_zone]])
+            Time.parse("%sT%s%s" % [params['txn_date'],params['txn_time'],@options[:time_zone]]) if params['txn_date'].present? and params['txn_time'].present?
           end
 
           def payer_email
@@ -112,7 +112,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def status
-            case params['response_code'].to_i
+            case params['response_code']
             when 0...49
               'Approved'
             when 54
@@ -132,7 +132,16 @@ module ActiveMerchant #:nodoc:
             @raw = post.to_s
             for line in @raw.split('&')
               key, value = *line.scan( %r{^([A-Za-z0-9_.]+)\=(.*)$} ).flatten
-              params[key] = CGI.unescape(value)
+
+              if key == 'response_code'
+                begin
+                  params[key] = Integer(/0*(\d+)/.match(CGI.unescape(value))[1])
+                rescue ArgumentError
+                  params[key] = nil
+                end
+              else
+                params[key] = CGI.unescape(value)
+              end
             end
           end
         end
