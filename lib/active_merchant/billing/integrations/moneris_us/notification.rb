@@ -26,7 +26,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def order_id
-            params["order_id"]
+            params["order_no"]
           end
 
           # gateway transaction identifier
