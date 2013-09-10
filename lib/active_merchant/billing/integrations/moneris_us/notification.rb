@@ -18,7 +18,7 @@ module ActiveMerchant #:nodoc:
           end
 
           def failed?
-            params['response_code'].nil?
+            params['response_code'].nil? and not self.canceled?
           end
 
           def declined?
