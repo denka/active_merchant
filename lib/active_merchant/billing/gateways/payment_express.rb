@@ -82,7 +82,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def credit(money, identification, options = {})
-        deprecated CREDIT_DEPRECATION_MESSAGE
+        ActiveMerchant.deprecated CREDIT_DEPRECATION_MESSAGE
         refund(money, identification, options)
       end
 
@@ -227,7 +227,7 @@ module ActiveMerchant #:nodoc:
       end
 
       # The options hash may contain optional data which will be passed
-      # through the the specialized optional fields at PaymentExpress
+      # through the specialized optional fields at PaymentExpress
       # as follows:
       #
       #     {
